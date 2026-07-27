@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fantasy League Host Setup Checklist - Gymcord Fantasy</title>
+<template id="__bundler_thumbnail" data-bg-color="#0A0E14">
+  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="200" fill="#0A0E14"/>
+    <circle cx="100" cy="100" r="55" fill="none" stroke="#1ED9F0" stroke-width="8"/>
+    <path d="M75 100 L92 118 L128 82" fill="none" stroke="#34D399" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</template>
+<style>
+  :root {
+    --bg:          #0A0E14;
+    --bg-elevated: #0F141C;
+    --surface:     #141925;
+    --surface-2:   #1C2231;
+    --border:      #232938;
+    --border-soft: #1A1F2C;
+    --text:        #FFFFFF;
+    --text-muted:  #8B95A7;
+    --text-dim:    #5A6478;
+    --accent:      #1ED9F0;
+    --accent-hover:#36E0F2;
+    --accent-fg:   #021A1F;
+    --success:     #34D399;
+    --warning:     #F59E0B;
+    --error:       #F87171;
+    --error-bg:    rgba(248, 113, 113, 0.12);
+    --warning-bg:  rgba(245, 158, 11, 0.12);
+    --mention-bg:  rgba(168, 85, 247, 0.18);
+    --mention-fg:  #C084FC;
+    --brand-grad:  linear-gradient(135deg, #34D399 0%, #1ED9F0 50%, #A855F7 100%);
+    --shadow:      0 4px 16px rgba(0, 0, 0, 0.5);
+    --radius:      8px;
+    --radius-lg:   20px;
+    --radius-pill: 999px;
+  }
+
+  [data-theme="light"] {
+    --bg:          #F7F9FC;
+    --bg-elevated: #FFFFFF;
+    --surface:     #FFFFFF;
+    --surface-2:   #EEF2F7;
+    --border:      #DCE3ED;
+    --border-soft: #E8EDF4;
+    --text:        #0B1220;
+    --text-muted:  #4A5568;
+    --text-dim:    #8893A6;
+    --accent:      #0894AB;
+    --accent-hover:#0AA8C0;
+    --accent-fg:   #FFFFFF;
+    --success:     #047857;
+    --warning:     #B45309;
+    --error:       #B91C1C;
+    --error-bg:    rgba(185, 28, 28, 0.08);
+    --warning-bg:  rgba(180, 83, 9, 0.08);
+    --mention-bg:  rgba(147, 51, 234, 0.12);
+    --mention-fg:  #7E22CE;
+    --shadow:      0 4px 16px rgba(0, 0, 0, 0.06);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    margin: 0;
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.2s ease, color 0.2s ease;
+    line-height: 1.55;
+  }
+
+  a { color: var(--accent); }
+
+  a:focus-visible,
+  button:focus-visible,
+  input[type="checkbox"]:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* ---------- Header ---------- */
+
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text);
+    min-width: 0;
+  }
+
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    object-fit: cover;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset, var(--shadow);
+  }
+
+  .brand-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .brand-text .sub {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  .theme-toggle {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .theme-toggle:hover { color: var(--text); background: var(--surface-2); }
+
+  /* ---------- Layout ---------- */
+
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 20px 80px;
+  }
+
+  .page-title {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin: 4px 0 6px;
+  }
+
+  .page-subtitle {
+    color: var(--text-muted);
+    margin: 0 0 16px;
+    font-size: 15px;
+  }
+
+  /* ---------- Quick jump ---------- */
+
+  .quick-jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 20px;
+  }
+
+  .quick-jump a {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .quick-jump a:hover {
+    color: var(--text);
+    background: var(--surface-2);
+    border-color: var(--accent);
+  }
+
+  /* ---------- Callouts ---------- */
+
+  .callout {
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin: 16px 0;
+    font-size: 14.5px;
+    border: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+  }
+  .callout .icon { flex-shrink: 0; font-size: 16px; line-height: 1.4; }
+  .callout .body p { margin: 0 0 6px; }
+  .callout .body p:last-child { margin-bottom: 0; }
+
+  .callout-note {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--text-muted);
+  }
+
+  .callout-important {
+    background: var(--warning-bg);
+    border-color: var(--warning);
+    color: var(--text);
+  }
+  .callout-important strong { color: var(--warning); }
+
+  .callout-critical {
+    background: var(--error-bg);
+    border-color: var(--error);
+    color: var(--text);
+  }
+  .callout-critical strong { color: var(--error); }
+
+  /* ---------- Step sections ---------- */
+
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 20px;
+    scroll-margin-top: 76px;
+    transition: border-color 0.2s ease;
+  }
+
+  .step.completed {
+    border-color: var(--success);
+  }
+
+  .step-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    margin-bottom: 14px;
+  }
+
+  .step-head h2 {
+    min-width: 0;
+  }
+
+  .step-check {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+  }
+  .step-check input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--success);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .step.completed .step-check {
+    color: var(--success);
+  }
+  .step.completed .step-num {
+    background: var(--success);
+    color: #052e1f;
+  }
+
+  .step-num {
+    flex-shrink: 0;
+    height: 30px;
+    padding: 0 14px;
+    border-radius: var(--radius-pill);
+    background: var(--brand-grad);
+    color: #021A1F;
+    font-weight: 700;
+    font-size: 13px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .step h2 {
+    margin: 0;
+    font-size: 19px;
+  }
+
+  .step p { margin: 0 0 12px; }
+  .step ul, .step ol { margin: 0 0 12px; padding-left: 22px; }
+  .step li { margin-bottom: 6px; }
+
+  .step code,
+  .callout code {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  .mention {
+    background: var(--mention-bg);
+    color: var(--mention-fg);
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  /* ---------- Step images ---------- */
+
+  .step-img {
+    margin: 14px 0;
+  }
+  .step-img img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: transform 0.15s ease;
+  }
+  .step-img img:hover {
+    transform: scale(1.01);
+  }
+  .step-img figcaption {
+    margin-top: 6px;
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+
+  /* ---------- Lightbox ---------- */
+
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease;
+    z-index: 100;
+    cursor: zoom-out;
+  }
+  .lightbox.open {
+    opacity: 1;
+    visibility: visible;
+  }
+  .lightbox img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: var(--radius);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+  }
+
+  /* ---------- Template block ---------- */
+
+  .template-wrap {
+    margin: 8px 0 4px;
+  }
+
+  .template-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .template-header span {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .template-box {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    font-family: "SFMono-Regular", Consolas, "Courier New", monospace;
+    font-size: 13px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .copy-btn {
+    flex-shrink: 0;
+    background: var(--accent);
+    color: var(--accent-fg);
+    border: none;
+    border-radius: var(--radius);
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .copy-btn:hover { background: var(--accent-hover); }
+  .copy-btn.copied { background: var(--success); }
+
+  /* ---------- Channel usage ---------- */
+
+  .footer-note {
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: center;
+    margin-top: 32px;
+  }
+
+  .next-step-fab {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 30;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    background: var(--brand-grad);
+    color: var(--accent-fg);
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .next-step-fab:hover { filter: brightness(1.08); }
+  .next-step-fab:disabled {
+    opacity: 0.35;
+    cursor: default;
+    filter: none;
+  }
+
+  @media (max-width: 640px) {
+    .next-step-fab { right: 16px; bottom: 16px; width: 46px; height: 46px; }
+    .site-header { padding: 12px 14px; }
+    main { padding: 18px 14px 60px; }
+    .page-title { font-size: 27px; }
+    .step { padding: 18px; }
+    .template-header {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .copy-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header" style="justify-content: flex-end;">
+  <button class="theme-toggle" id="themeToggle" type="button">
+    <span id="themeIcon">☀️</span><span id="themeLabel">Light mode</span>
+  </button>
+</header>
+
+<main>
+  <h1 class="page-title">Fantasy League Host Setup Checklist</h1>
+
+  <div class="callout callout-important">
+    <span class="icon">⚠️</span>
+    <div class="body">
+      <p><strong>NOTE:</strong> It is best to do this on a desktop computer. Please read all instructions and look at screenshots CAREFULLY. Ask questions in <code>#fantasy-hosts-training</code> AFTER reading all the instructions here.</p>
+    </div>
+  </div>
+
+  <section class="step" id="step1">
+    <div class="step-head">
+      <span class="step-num">Step 1</span>
+      <h2>Determine Your Rules &amp; Announcement</h2>
+    </div>
+    <p>Use the template below to make sure you include everything:</p>
+
+    <div class="template-wrap">
+      <div class="template-header">
+        <span>Announcement template</span>
+        <button class="copy-btn" id="copyTemplateBtn" type="button">📋 Copy template</button>
+      </div>
+      <div class="template-box" id="templateText">[My League Name] by [HOST NAME] |
+
+🎨 **Theme**: [DESCRIPTIVE THEME]
+📍 **Location**: [Gymlytics, spreadsheet] [Gymcord channel, Discord DMs, Another server]
+📜 **League Details**
+[This is where you want to pitch YOUR league to players! Include as much detail as possible.]
+
+📋 **Draft Rules:**
+
+* **Recommended for beginners?** [Yes/No]
+* **Draft Type:** [Slow/Fast] [Snake/Rotating/Wheelie/Fully automated on Gymlytics] Draft
+* **Draft Turn Time Limit:** [Usually 2 minutes for fast/14 hours for slow]
+* **Start Time:** [Time/date with time zone or "When full"]
+* **Time Zone of Host:** [Time zone]
+* **Trade Rules:** [No trades/Trade after X week/Include your policy regarding late roster adds, preseason injuries, roster removals/include if trades must be in-theme or not. Recommended to give priority to season-ending injury trades first in draft order.]
+
+🤸 **Team Format:**
+
+* Gymnasts per Team: [number, usually 20-30]
+* [number, usually 10-15] up / [number, usually 5] count
+
+👥 **Max Players:** [recommended 8, add 1 to the number shared in your announcement if you are not playing to represent the 1 bot react]
+✅ **How to Join:**
+React with [emoji] to this message to join.
+
+💼 **As a courtesy to your host and other players:** Please only sign up for leagues for which you are personally available to draft for. Please limit your number of drafts in progress to 5 at a time so that other players can participate in fantasy drafting.</div>
+    </div>
+  </section>
+
+  <section class="step" id="step2">
+    <div class="step-head">
+      <span class="step-num">Step 2</span>
+      <h2>Create the League Role</h2>
+    </div>
+    <div class="callout callout-note">
+      <span class="icon">💡</span>
+      <div class="body"><p>You only need to do this once per League.</p></div>
+    </div>
+    <ol>
+      <li>Go to <code>#bot-commands</code>.</li>
+      <li>Type: <code>/role create</code></li>
+      <li>Enter your League's name, ensuring that it matches the description that you wrote (make it clear &amp; descriptive).</li>
+    </ol>
+    <figure class="step-img">
+      <img src="images/step2-role-create.png" alt="Discord /role create command with the role name field filled in as My League" loading="lazy">
+      <figcaption>Example: /role create with the role name set to your league name.</figcaption>
+    </figure>
+  </section>
+
+  <section class="step" id="step3">
+    <div class="step-head">
+      <span class="step-num">Step 3</span>
+      <h2>Create the League Channel</h2>
+    </div>
+    <ol>
+      <li>Under Fantasy Leagues category, create a new text channel with your league name.</li>
+    </ol>
+    <div class="callout callout-important">
+      <span class="icon">⚠️</span>
+      <div class="body"><p><strong>IMPORTANT:</strong> Make sure the toggle is set to PRIVATE.</p></div>
+    </div>
+    <figure class="step-img">
+      <img src="images/step3-private-toggle.png" alt="Discord Create Channel modal with arrows pointing at the Private Channel toggle switched on" loading="lazy">
+      <figcaption>Make sure it's private before you continue.</figcaption>
+    </figure>
+    <ol start="2">
+      <li>When it asks you which roles can have access to this channel, select the Role that you just created.</li>
+    </ol>
+    <div class="callout callout-important">
+      <span class="icon">⚠️</span>
+      <div class="body"><p><strong>Important:</strong> Go to the channel that you just created and add the rules to the channel and pin them.</p></div>
+    </div>
+  </section>
+
+  <section class="step" id="step4">
+    <div class="step-head">
+      <span class="step-num">Step 4</span>
+      <h2>Set Up the Reaction Role</h2>
+    </div>
+    <ol>
+      <li>In <code>#bot-commands</code>, type: <code>/reactionrole setup</code></li>
+      <li>Follow the prompts and link it to the league role you just made.</li>
+      <li>It will ask you which channel the announcement should be in. To test your announcement, respond <code>#fantasy-test</code>. For the real deal, use <code>#fantasy</code>.</li>
+    </ol>
+    <figure class="step-img">
+      <img src="images/step4-reactionrole-channel.png" alt="Discord bot asking which channel the message should be in, with the host replying #fantasy-test" loading="lazy">
+      <figcaption>The bot will ask which channel to use. Reply with #fantasy-test while testing.</figcaption>
+    </figure>
+    <div class="callout callout-important">
+      <span class="icon">⚠️</span>
+      <div class="body"><p><strong>IMPORTANT:</strong> You may only post to <code>#fantasy</code> if you have received a ✅ from Christa that your training is complete.</p></div>
+    </div>
+    <ol start="4">
+      <li>It will ask you to include the title and description. Paste the title and description that you wrote in Step 1. If you take too long you will have to restart.</li>
+      <li>Next it will ask you if you want to add a color to your announcement. Type in a <a href="https://htmlcolorcodes.com/color-picker/" target="_blank" rel="noopener">hex code</a> or type none.</li>
+      <li>Then it will ask you to include the emoji for the reaction and the role that you created. Add it like this:</li>
+    </ol>
+    <figure class="step-img">
+      <img src="images/step4-emoji-role-example.png" alt="Example reaction role setup showing the smile emoji linked to the League of Legends role, with a preview of the full league announcement" loading="lazy">
+      <figcaption>Example: emoji paired with the role, followed by the announcement preview.</figcaption>
+    </figure>
+    <ol start="7">
+      <li>Once a green checkbox appears, type done.</li>
+    </ol>
+    <figure class="step-img">
+      <img src="images/step4-green-checkbox.png" alt="Discord confirmation showing a green checkbox reaction and the bot reporting 1 Reaction role Created" loading="lazy">
+      <figcaption>Once you see the green checkbox, type done.</figcaption>
+    </figure>
+  </section>
+
+  <div class="callout callout-critical" id="please-read">
+    <span class="icon">🚨</span>
+    <div class="body">
+      <p><strong>PLEASE READ - DO NOT SKIP</strong></p>
+      <p>As the host, you DO NOT need to react to your own post to be in the league. The bot reaction is a stand-in for your spot in the league, so 8 reactions total = 8 people in the league.</p>
+      <p><strong>IMPORTANT:</strong> Do not post to <code>#fantasy</code> until you've received a ✅ from Christa that your training is complete. Until then you must post to <code>#fantasy-test</code>.</p>
+      <p><strong>IMPORTANT:</strong> Go to the channel where your announcement is posted and ensure that it was posted correctly.</p>
+      <p>If you are announcing your league for real (after training) comment with the tag <span class="mention">@Fantasy</span> to ping potential players.</p>
+    </div>
+  </div>
+
+  <section class="step" id="step5">
+    <div class="step-head">
+      <span class="step-num">Step 5</span>
+      <h2>Remove the Announcement When Full <span style="color: var(--text-dim); font-weight: 400; font-size: 14px;">(for <code>#fantasy</code> posts)</span></h2>
+
+    </div>
+    <ol>
+      <li>Once the league is full, screenshot the list of names who reacted to the post for record keeping purposes.</li>
+    </ol>
+    <figure class="step-img">
+      <img src="images/step5-reacted-names.jpg" alt="Example screenshot of a reaction list showing the star emoji count and the names of everyone who reacted" loading="lazy">
+      <figcaption>Example: screenshot the reacted names list before you take the announcement down.</figcaption>
+    </figure>
+    <ol start="2">
+      <li>To get a roster of who was assigned the role to your league, type <code>!dump @[League Role]</code> into your league channel or <code>#bot-commands</code>.</li>
+      <li>If any people are missing from the !dump list who reacted to your post, you can add them with the command <code>/role add</code>.</li>
+      <li>Once your league is filled, please delete the announcement from the <code>#fantasy</code> channel AND delete your message that pinged <span class="mention">@Fantasy</span>.</li>
+    </ol>
+  </section>
+
+  <section class="step" id="step6">
+    <div class="step-head">
+      <span class="step-num">Step 6</span>
+      <h2>Announce Your Draft Order</h2>
+
+    </div>
+    <p>Your players will be looking forward to hearing from you quickly!</p>
+    <p>We recommend using <a href="https://www.random.org/lists/" target="_blank" rel="noopener">random.org/lists</a> or the <code>/shuffle</code> command to randomize names.</p>
+    <p>Happy drafting! 🤸</p>
+
+    <div class="step-head" style="margin-top: 24px;">
+      <h2>Channel Usage</h2>
+    </div>
+    <ul>
+      <li>Please only put bot commands in <code>#bot-commands</code>. (Conversations aren't meant to be there.)</li>
+      <li>Please use the <code>#fantasy-hosts-training</code> channel for questions about this process, including tagging Christa to review your test post.</li>
+      <li>You may send test posts to <code>#fantasy-test</code> at any time from <code>#bot-commands</code> if you want to test the look and feel of your post after training.</li>
+    </ul>
+  </section>
+
+  <p class="footer-note">Gymcord Fantasy - Made with &lt;3 by Christa</p>
+</main>
+
+<button class="next-step-fab" id="nextStepFab" type="button" aria-label="Jump to next step" title="Jump to next step">↓</button>
+
+<script>
+  (function () {
+    var KEY = 'gymcord-guide-theme';
+    var root = document.documentElement;
+    var toggle = document.getElementById('themeToggle');
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+
+    function apply(theme) {
+      root.setAttribute('data-theme', theme);
+      if (theme === 'dark') {
+        icon.textContent = '☀️';
+        label.textContent = 'Light mode';
+      } else {
+        icon.textContent = '🌙';
+        label.textContent = 'Dark mode';
+      }
+      try { window.localStorage.setItem(KEY, theme); } catch (e) {}
+    }
+
+    var stored = null;
+    try { stored = window.localStorage.getItem(KEY); } catch (e) {}
+    apply(stored === 'light' ? 'light' : 'dark');
+
+    toggle.addEventListener('click', function () {
+      var current = root.getAttribute('data-theme');
+      apply(current === 'dark' ? 'light' : 'dark');
+    });
+
+    var copyBtn = document.getElementById('copyTemplateBtn');
+    var templateText = document.getElementById('templateText');
+
+    copyBtn.addEventListener('click', function () {
+      var text = templateText.innerText;
+      var done = function () {
+        var original = '📋 Copy template';
+        copyBtn.textContent = '✅ Copied!';
+        copyBtn.classList.add('copied');
+        setTimeout(function () {
+          copyBtn.textContent = original;
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () {
+          fallbackCopy(text, done);
+        });
+      } else {
+        fallbackCopy(text, done);
+      }
+    });
+
+    function fallbackCopy(text, cb) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      cb();
+    }
+
+    /* ---------- Step completion checkboxes ---------- */
+
+    var PROGRESS_KEY = 'gymcord-guide-progress';
+    var progress = {};
+    try { progress = JSON.parse(window.localStorage.getItem(PROGRESS_KEY)) || {}; } catch (e) { progress = {}; }
+
+    var checkboxes = Array.prototype.slice.call(document.querySelectorAll('.step-check input[type="checkbox"]'));
+
+    function saveProgress() {
+      try { window.localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch (e) {}
+    }
+
+    checkboxes.forEach(function (box) {
+      var stepId = box.getAttribute('data-step');
+      var stepEl = document.getElementById(stepId);
+      if (progress[stepId]) {
+        box.checked = true;
+        if (stepEl) stepEl.classList.add('completed');
+      }
+      box.addEventListener('change', function () {
+        progress[stepId] = box.checked;
+        saveProgress();
+        if (stepEl) stepEl.classList.toggle('completed', box.checked);
+      });
+    });
+
+    /* ---------- Image lightbox ---------- */
+
+    var lightbox = document.createElement('div');
+    lightbox.className = 'lightbox';
+    lightbox.innerHTML = '<img alt="">';
+    document.body.appendChild(lightbox);
+    var lightboxImg = lightbox.querySelector('img');
+
+    function openLightbox(src, alt) {
+      lightboxImg.src = src;
+      lightboxImg.alt = alt || '';
+      lightbox.classList.add('open');
+    }
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      lightboxImg.src = '';
+    }
+
+    document.querySelectorAll('.step-img img').forEach(function (img) {
+      img.style.cursor = 'zoom-in';
+      img.setAttribute('tabindex', '0');
+      img.setAttribute('role', 'button');
+      img.setAttribute('aria-label', 'Tap to zoom: ' + (img.alt || 'screenshot'));
+      img.addEventListener('click', function () { openLightbox(img.src, img.alt); });
+      img.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openLightbox(img.src, img.alt);
+        }
+      });
+    });
+
+    lightbox.addEventListener('click', closeLightbox);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && lightbox.classList.contains('open')) closeLightbox();
+    });
+
+    /* ---------- Next-step FAB ---------- */
+
+    var steps = Array.prototype.slice.call(document.querySelectorAll('.step'));
+    var fab = document.getElementById('nextStepFab');
+
+    function updateFab() {
+      var next = steps.find(function (s) {
+        return s.getBoundingClientRect().top > 100;
+      });
+      fab.disabled = !next;
+    }
+
+    fab.addEventListener('click', function () {
+      var next = steps.find(function (s) {
+        return s.getBoundingClientRect().top > 100;
+      });
+      if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    window.addEventListener('scroll', updateFab, { passive: true });
+    updateFab();
+  })();
+</script>
+
+</body>
+</html>
