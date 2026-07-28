@@ -386,11 +386,11 @@
 
   /* ---------- Template block ---------- */
 
-  .template-wrap {
+  .wizard-embed {
     margin: 8px 0 4px;
   }
 
-  .template-header {
+  .wizard-embed-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -398,7 +398,7 @@
     margin-bottom: 8px;
   }
 
-  .template-header span {
+  .wizard-embed-header span {
     font-size: 13px;
     font-weight: 700;
     color: var(--text-muted);
@@ -406,37 +406,31 @@
     letter-spacing: 0.04em;
   }
 
-  .template-box {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    font-family: "SFMono-Regular", Consolas, "Courier New", monospace;
-    font-size: 13px;
-    white-space: pre-wrap;
-    word-break: break-word;
-    color: var(--text);
-    line-height: 1.6;
-  }
-
-  .copy-btn {
+  .wizard-embed-header a {
     flex-shrink: 0;
-    background: var(--accent);
-    color: var(--accent-fg);
-    border: none;
-    border-radius: var(--radius);
-    padding: 8px 14px;
     font-size: 13px;
     font-weight: 700;
-    font-family: inherit;
-    cursor: pointer;
-    box-shadow: var(--shadow);
+    text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 6px;
   }
-  .copy-btn:hover { background: var(--accent-hover); }
-  .copy-btn.copied { background: var(--success); }
+  .wizard-embed-header a:hover { color: var(--accent-hover); }
+
+  .wizard-embed-frame {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .wizard-embed-frame iframe {
+    display: block;
+    width: 100%;
+    height: 1400px;
+    border: none;
+    background: var(--surface-2);
+  }
 
   /* ---------- Channel usage ---------- */
 
@@ -478,14 +472,11 @@
     main { padding: 18px 14px 60px; }
     .page-title { font-size: 27px; }
     .step { padding: 18px; }
-    .template-header {
+    .wizard-embed-header {
       flex-direction: column;
       align-items: stretch;
     }
-    .copy-btn {
-      width: 100%;
-      justify-content: center;
-    }
+    .wizard-embed-frame iframe { height: 1700px; }
   }
 </style>
 </head>
@@ -512,39 +503,16 @@
       <span class="step-num">Step 1</span>
       <h2>Determine Your Rules &amp; Announcement</h2>
     </div>
-    <p>Use the template below to make sure you include everything:</p>
+    <p>Use the wizard below to answer a few questions about your league &mdash; it builds a ready-to-post, Discord-formatted announcement for you:</p>
 
-    <div class="template-wrap">
-      <div class="template-header">
-        <span>Announcement template</span>
-        <button class="copy-btn" id="copyTemplateBtn" type="button">📋 Copy template</button>
+    <div class="wizard-embed">
+      <div class="wizard-embed-header">
+        <span>League Rules Wizard</span>
+        <a href="https://gymcorddiscord.github.io/gymcord-league-rules-wizard/" target="_blank" rel="noopener">↗ Open in new tab</a>
       </div>
-      <div class="template-box" id="templateText">[My League Name] by [HOST NAME] |
-
-🎨 **Theme**: [DESCRIPTIVE THEME]
-📍 **Location**: [Gymlytics, spreadsheet] [Gymcord channel, Discord DMs, Another server]
-📜 **League Details**
-[This is where you want to pitch YOUR league to players! Include as much detail as possible.]
-
-📋 **Draft Rules:**
-
-* **Recommended for beginners?** [Yes/No]
-* **Draft Type:** [Slow/Fast] [Snake/Rotating/Wheelie/Fully automated on Gymlytics] Draft
-* **Draft Turn Time Limit:** [Usually 2 minutes for fast/14 hours for slow]
-* **Start Time:** [Time/date with time zone or "When full"]
-* **Time Zone of Host:** [Time zone]
-* **Trade Rules:** [No trades/Trade after X week/Include your policy regarding late roster adds, preseason injuries, roster removals/include if trades must be in-theme or not. Recommended to give priority to season-ending injury trades first in draft order.]
-
-🤸 **Team Format:**
-
-* Gymnasts per Team: [number, usually 20-30]
-* [number, usually 10-15] up / [number, usually 5] count
-
-👥 **Max Players:** [recommended 8, add 1 to the number shared in your announcement if you are not playing to represent the 1 bot react]
-✅ **How to Join:**
-React with [emoji] to this message to join.
-
-💼 **As a courtesy to your host and other players:** Please only sign up for leagues for which you are personally available to draft for. Please limit your number of drafts in progress to 5 at a time so that other players can participate in fantasy drafting.</div>
+      <div class="wizard-embed-frame">
+        <iframe src="https://gymcorddiscord.github.io/gymcord-league-rules-wizard/" title="Gymcord League Rules Wizard" loading="lazy"></iframe>
+      </div>
     </div>
   </section>
 
@@ -713,43 +681,6 @@ React with [emoji] to this message to join.
       var current = root.getAttribute('data-theme');
       apply(current === 'dark' ? 'light' : 'dark');
     });
-
-    var copyBtn = document.getElementById('copyTemplateBtn');
-    var templateText = document.getElementById('templateText');
-
-    copyBtn.addEventListener('click', function () {
-      var text = templateText.innerText;
-      var done = function () {
-        var original = '📋 Copy template';
-        copyBtn.textContent = '✅ Copied!';
-        copyBtn.classList.add('copied');
-        setTimeout(function () {
-          copyBtn.textContent = original;
-          copyBtn.classList.remove('copied');
-        }, 2000);
-      };
-
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(done).catch(function () {
-          fallbackCopy(text, done);
-        });
-      } else {
-        fallbackCopy(text, done);
-      }
-    });
-
-    function fallbackCopy(text, cb) {
-      var ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      try { document.execCommand('copy'); } catch (e) {}
-      document.body.removeChild(ta);
-      cb();
-    }
 
     /* ---------- Step completion checkboxes ---------- */
 
