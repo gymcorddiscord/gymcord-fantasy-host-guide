@@ -92,67 +92,50 @@
 
   /* ---------- Header ---------- */
 
-  .site-header {
-    position: sticky;
-    top: 0;
-    z-index: 20;
+  .hero {
+    background: linear-gradient(100deg, #c026d3 0%, #8b5cf6 35%, #64748b 55%, #22c55e 100%);
+    padding: 28px 24px;
+  }
+
+  .hero-inner {
+    max-width: 760px;
+    margin: 0 auto;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
+    gap: 14px;
   }
 
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 700;
-    font-size: 16px;
-    color: var(--text);
-    min-width: 0;
+  .hero h1 {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: .2px;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,.35);
   }
 
-  .brand-mark {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    flex-shrink: 0;
-    object-fit: cover;
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset, var(--shadow);
-  }
-
-  .brand-text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .brand-text .sub {
-    display: block;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-muted);
+  .hero p {
+    margin: 2px 0 0;
+    color: rgba(255,255,255,.9);
+    font-size: 14px;
   }
 
   .theme-toggle {
-    background: transparent;
-    color: var(--text-muted);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 8px 12px;
-    font-size: 13px;
-    font-family: inherit;
-    font-weight: 600;
-    cursor: pointer;
-    flex-shrink: 0;
+    margin-left: auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(10,14,20,0.55);
+    border: 1px solid rgba(255,255,255,0.25);
     display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color .2s ease, transform .1s ease;
   }
-  .theme-toggle:hover { color: var(--text); background: var(--surface-2); }
+  .theme-toggle:hover { background: rgba(10,14,20,0.75); }
+  .theme-toggle:active { transform: scale(0.94); }
 
   /* ---------- Layout ---------- */
 
@@ -485,15 +468,17 @@
 </head>
 <body>
 
-<header class="site-header" style="justify-content: flex-end;">
-  <button class="theme-toggle" id="themeToggle" type="button">
-    <span id="themeIcon">☀️</span><span id="themeLabel">Light mode</span>
-  </button>
-</header>
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <h1>Fantasy League Host Setup Checklist</h1>
+      <p>Step-by-step setup for hosting a fantasy league in Discord.</p>
+    </div>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light/dark mode">🌙</button>
+  </div>
+</div>
 
 <main>
-  <h1 class="page-title">Fantasy League Host Setup Checklist</h1>
-
   <div class="callout callout-important">
     <span class="icon">⚠️</span>
     <div class="body">
@@ -514,7 +499,7 @@
         <a href="https://gymcorddiscord.github.io/gymcord-league-rules-wizard/" target="_blank" rel="noopener">↗ Open in new tab</a>
       </div>
       <div class="wizard-embed-frame">
-        <iframe src="https://gymcorddiscord.github.io/gymcord-league-rules-wizard/" title="Gymcord League Rules Wizard" loading="lazy"></iframe>
+        <iframe id="wizardFrame" src="https://gymcorddiscord.github.io/gymcord-league-rules-wizard/" title="Gymcord League Rules Wizard" loading="lazy"></iframe>
       </div>
     </div>
   </section>
@@ -651,7 +636,7 @@
     </ul>
   </section>
 
-  <p class="footer-note">Gymcord Fantasy - Made with &lt;3 by Gymcord &middot; v1.1</p>
+  <p class="footer-note">Gymcord Fantasy - Made with &lt;3 by Gymcord &middot; v1.2</p>
 </main>
 
 <button class="next-step-fab" id="nextStepFab" type="button" aria-label="Jump to next step" title="Jump to next step">↓</button>
@@ -661,19 +646,14 @@
     var KEY = 'gymcord-guide-theme';
     var root = document.documentElement;
     var toggle = document.getElementById('themeToggle');
-    var icon = document.getElementById('themeIcon');
-    var label = document.getElementById('themeLabel');
+    var wizardFrame = document.getElementById('wizardFrame');
+    var wizardContainer = wizardFrame ? wizardFrame.parentElement : null;
 
     function apply(theme) {
       root.setAttribute('data-theme', theme);
-      if (theme === 'dark') {
-        icon.textContent = '☀️';
-        label.textContent = 'Light mode';
-      } else {
-        icon.textContent = '🌙';
-        label.textContent = 'Dark mode';
-      }
+      toggle.textContent = theme === 'light' ? '☀️' : '🌙';
       try { window.localStorage.setItem(KEY, theme); } catch (e) {}
+      syncWizardTheme(theme);
     }
 
     var stored = null;
@@ -684,6 +664,46 @@
       var current = root.getAttribute('data-theme');
       apply(current === 'dark' ? 'light' : 'dark');
     });
+
+    /* ---------- Wizard embed: hide its header, sync theme ---------- */
+    /* Same-origin embed (gymcorddiscord.github.io), so we can reach into
+       the iframe's document to crop its hero and match the theme. */
+
+    function syncWizardTheme(theme) {
+      if (!wizardFrame) return;
+      try {
+        var doc = wizardFrame.contentDocument;
+        if (doc && doc.documentElement) doc.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    }
+
+    function syncWizardCrop() {
+      if (!wizardFrame || !wizardContainer) return;
+      try {
+        var doc = wizardFrame.contentDocument;
+        if (!doc) return;
+        var hero = doc.querySelector('.hero');
+        var heroHeight = hero ? hero.getBoundingClientRect().height : 0;
+        var fullHeight = doc.documentElement.scrollHeight;
+        wizardFrame.style.height = fullHeight + 'px';
+        wizardFrame.style.marginTop = (-heroHeight) + 'px';
+        wizardContainer.style.height = (fullHeight - heroHeight) + 'px';
+      } catch (e) {}
+    }
+
+    if (wizardFrame) {
+      wizardFrame.addEventListener('load', function () {
+        syncWizardTheme(root.getAttribute('data-theme'));
+        syncWizardCrop();
+        try {
+          var wizDoc = wizardFrame.contentDocument;
+          if (wizDoc && wizDoc.body && window.ResizeObserver) {
+            new ResizeObserver(syncWizardCrop).observe(wizDoc.body);
+          }
+        } catch (e) {}
+      });
+      window.addEventListener('resize', syncWizardCrop);
+    }
 
     /* ---------- Step completion checkboxes ---------- */
 
