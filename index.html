@@ -684,7 +684,7 @@
         if (!doc) return;
         var hero = doc.querySelector('.hero');
         var heroHeight = hero ? hero.getBoundingClientRect().height : 0;
-        var fullHeight = doc.documentElement.scrollHeight;
+        var fullHeight = doc.body.scrollHeight;
         wizardFrame.style.height = fullHeight + 'px';
         wizardFrame.style.marginTop = (-heroHeight) + 'px';
         wizardContainer.style.height = (fullHeight - heroHeight) + 'px';
